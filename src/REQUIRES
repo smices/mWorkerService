@@ -1,0 +1,16 @@
+#System Requirements
+ubuntu >=14.04 LTS
+python >= 2.7.6
+redis >= 3.2
+
+# Python Module Requirements
+prettytable >=0.7.2
+redis >=2.10.5
+rq >=0.6.0
+configobj >=5.0.6
+Flask >=0.10.1
+termcolor >=1.1.0
+psutil >=4.2.0
+
+#Installation:
+install: sudo easy_install python_module_name
