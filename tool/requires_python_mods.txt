@@ -1,0 +1,8 @@
+prettytable
+redis
+rq
+configobj
+Flask
+termcolor
+psutil
+gevent

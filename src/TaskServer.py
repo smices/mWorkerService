@@ -1,5 +1,10 @@
 #!/usr/bin/env python
 # coding:utf-8
+try:
+    from gevent import monkey
+    monkey.patch_all()
+except ImportError:
+    pass
 from flask import Flask, redirect, url_for, escape, request
 from scheduler import insert
 import json
