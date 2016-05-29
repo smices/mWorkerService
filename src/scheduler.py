@@ -71,7 +71,7 @@ def run(worker):
     inWorker.main(config)
 
 
-def insert(worker):
+def insert(worker, data=None):
     """
     insert a record to worker queue
     :param worker:
@@ -91,7 +91,7 @@ def insert(worker):
 
     # read config
     config = get_worker_config(worker, _dir_config)
-    return inWorker.main(config, silent=True)
+    return inWorker.main(config, silent=True, data=data)
 
 
 if __name__ == '__main__':

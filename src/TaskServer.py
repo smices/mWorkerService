@@ -27,7 +27,7 @@ def sms():
 
 @app.route("/push_worker", methods=['GET', 'POST'])
 def push_worker():
-    result = insert("PushWorker")
+    result = insert("PushWorker", data=request.form)
     out = []
     for v in result:
         out.append(v.get_id())

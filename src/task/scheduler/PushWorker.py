@@ -8,7 +8,7 @@ import random
 from task.worker.PushWorker import push_messenger
 
 
-def main(config, silent=False):
+def main(config, silent=False, data=None):
     """
     Job enqueue
 
@@ -20,14 +20,9 @@ def main(config, silent=False):
 
     q = Queue('low', connection=redis_conn)
 
-    in_count = 0
-    in_max = 99
-
     ret = []
-    while in_count < in_max:
-        result = q.enqueue(push_messenger, random.randint(1, 9999), result_ttl=60)
-        ret.append(result)
-        in_count += 1
+    result = q.enqueue(push_messenger, data, result_ttl=60)
+    ret.append(result)
 
     if silent is True:
         return ret
