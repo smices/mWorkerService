@@ -8,10 +8,10 @@ import random
 from task.worker.PushWorker import push_messenger
 
 
-def main(config, silent=False, data=None):
+def main(msg, config, silent=False):
     """
     Job enqueue
-
+    :param msg:str
     :param config:
     :return:
     """
@@ -20,9 +20,7 @@ def main(config, silent=False, data=None):
 
     q = Queue('low', connection=redis_conn)
 
-    ret = []
-    result = q.enqueue(push_messenger, data, result_ttl=60)
-    ret.append(result)
+    ret = q.enqueue(push_messenger, msg, result_ttl=60)
 
     if silent is True:
         return ret
@@ -33,4 +31,4 @@ def main(config, silent=False, data=None):
 if __name__ == '__main__':
     from lib.units import this_file_dir, config_reader
 
-    main(config_reader("PushWorker", this_file_dir()))
+    main(config_reader("mServiceWorker", "PushWorker", this_file_dir()))

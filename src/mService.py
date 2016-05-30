@@ -158,31 +158,43 @@ def start(debug=False):
         cmsg("Service master is running..., start action exit.", "error")
         sys.exit(0)
 
-    worker_list, worker_config_list = enabled_worker()
+    try:
+        worker_list, worker_config_list = enabled_worker()
 
-    process_num = multiprocessing.cpu_count()*2
+        process_num = multiprocessing.cpu_count()*2
 
-    pid_list = []
-    pool = multiprocessing.Pool(processes=process_num)
+        pid_list = []
+        pool = multiprocessing.Pool(processes=process_num)
 
-    for w in worker_list:
-        for i in xrange(int(worker_config_list[w]["setup"]["process_num"])):
-            pool.apply_async(exec_worker, args=(w,))
+        # worker_max = [int(worker_config_list[w]["setup"]["process_num"]) for w in worker_list]
 
-        for i in multiprocessing.active_children():
-            pid_list.append(i.pid)
+        for w in worker_list:
 
-    pid_list.append(os.getpid())
+            if int(worker_config_list[w]["setup"]["process_num"]) < process_num:
+                max_worker = int(worker_config_list[w]["setup"]["process_num"])
+            else:
+                max_worker = process_num
 
-    write_master_pid = master_pid("w", os.getpid())
-    write_subproc_pid = processors_list("w", pid_list)
+            for i in xrange(max_worker):
+                pool.apply_async(exec_worker, args=(w,))
 
-    if (write_master_pid is None) or (write_subproc_pid is False):
-        processors_list("k", pid_list)
-        master_pid("k", os.getpid())
-    else:
-        pool.close()
-        pool.join()
+            for i in multiprocessing.active_children():
+                pid_list.append(i.pid)
+
+        pid_list.append(os.getpid())
+
+        write_master_pid = master_pid("w", os.getpid())
+        write_subproc_pid = processors_list("w", pid_list)
+
+        if (write_master_pid is None) or (write_subproc_pid is False):
+            print "Have error, write master/subproc pid fail!"
+            processors_list("k", pid_list)
+            master_pid("k", os.getpid())
+        else:
+            pool.close()
+            pool.join()
+    except Exception, ex:
+        print ex
 
 
 def stop(debug=False):

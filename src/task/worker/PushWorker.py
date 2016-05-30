@@ -4,6 +4,7 @@ import redis
 from rq import Worker, Queue, Connection
 import fcntl
 
+
 def push_messenger(message_body):
     fp = open("./push_messenger.log", "a")
     fcntl.flock(fp.fileno(), fcntl.LOCK_EX)

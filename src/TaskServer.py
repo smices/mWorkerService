@@ -17,6 +17,11 @@ import json
 
 app = Flask(__name__)
 
+send_message_form = """<form method=post>
+<input type=input name=msg size=50>&nbsp;<input type="submit">
+</form>
+"""
+
 
 @app.route("/")
 def hello():
@@ -32,28 +37,28 @@ def favicon():
     return ""
 
 
-@app.route("/smsworker")
+@app.route("/smsworker", methods=['GET', 'POST'])
 def sms():
-    result = insert("SMSWorker")
-    out = []
-    for v in result:
-        out.append(v.get_id())
-    return json.dumps(out)
+    if request.method == "GET":
+        return send_message_form
+    elif request.method == 'POST':
+        result = insert("SMSWorker", request.form.get('msg'))
+        out = []
+        for v in result:
+            out.append(v.get_id())
+        return json.dumps(out)
 
 
 @app.route("/pushworker", methods=['GET', 'POST'])
 def push_worker():
-    result = insert("PushWorker", data=request.form)
-    out = []
-    for v in result:
-        out.append(v.get_id())
-    return json.dumps(out)
-    """
-    if request.method == 'POST':
-        return "PushWorker"
-    else:
-        return "PushWorker"
-    """
+    if request.method == "GET":
+        return send_message_form
+    elif request.method == 'POST':
+        result = insert("PushWorker", request.form.get('msg'))
+        out = []
+        for v in result:
+            out.append(v.get_id())
+        return json.dumps(out)
 
 
 if __name__ == "__main__":

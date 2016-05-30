@@ -8,13 +8,14 @@ import getopt
 from prettytable import PrettyTable as PTable
 from lib.units import *
 
+app_path = get_app_path(this_file_dir())
+app_path.pop("tmp")
+for key in app_path:
+    add_module_path(app_path[key])
 
-_dir_config = this_file_dir()+"/conf"
-_dir_scheduler = this_file_dir()+"/task/scheduler"
-_dir_worker = this_file_dir()+"/task/worker"
-
-add_module_path(_dir_scheduler)
-add_module_path(_dir_worker)
+_dir_config = app_path['conf']
+_dir_scheduler = app_path['task'] + "/scheduler"
+_dir_worker = app_path['task'] + "/worker"
 
 
 def usage():
@@ -25,7 +26,7 @@ def usage():
     print "| 测试执行 Worker 数据插入"
     print "+" + "-" * 40 + "+"
     print "| 请使用如下命令执行:"
-    print "| ./%s -m module_name" % os.path.basename(__file__)
+    print "| ./%s -m module_name -e \"Hello,World!\"" % os.path.basename(__file__)
     print "+" + "-" * 40 + "+"
 
     worker_list = scan_worker(_dir_scheduler)
@@ -35,6 +36,7 @@ def usage():
     h.padding_width = 1
     h.add_row(["-h", u"显示帮助内容"])
     h.add_row(["-m", u"执行 Worker 导入"])
+    h.add_row(["-e", u"要导入的消息内容"])
     print h
 
     m = PTable([u"可选模块名称", u"模块配置文件"])
@@ -49,14 +51,13 @@ def usage():
     sys.exit(0)
 
 
-def run(worker):
+def run(worker, msg="mServiceWorker"):
     """
     Run Worker Module main
     :param worker:
+    :param msg:str
     :return:
     """
-    os.system("clear")
-
     import_str = "from task.scheduler import %s as inWorker" % worker
 
     try:
@@ -68,13 +69,15 @@ def run(worker):
 
     # read config
     config = get_worker_config(worker, _dir_config)
-    inWorker.main(config)
+    inWorker.main(msg, config)
 
 
-def insert(worker, data=None):
+def insert(worker, msg="mServiceWorker"):
+
     """
     insert a record to worker queue
     :param worker:
+    :param msg:str
     :return:
     """
 
@@ -91,10 +94,11 @@ def insert(worker, data=None):
 
     # read config
     config = get_worker_config(worker, _dir_config)
-    return inWorker.main(config, silent=True, data=data)
+    return inWorker.main(msg, config, silent=True)
 
 
 if __name__ == '__main__':
+
     if platform.system() not in ['Linux', 'Darwin']:
         print (u"\n\tSorry, not supported your (%s) system!" % platform.system())*10
         sys.exit(0)
@@ -103,12 +107,17 @@ if __name__ == '__main__':
         # 没有参数就显示帮助文档
         usage()
 
-    opts, args = getopt.getopt(sys.argv[1:], "hm:")
+    opts, args = getopt.getopt(sys.argv[1:], "hm:e:")
+
+    msg = "hello,default message"
+    for op, var in opts:
+        if "-e" == op:
+            msg = var
 
     for op, var in opts:
         if op == "-m":
             if var in scan_worker(_dir_scheduler):
-                run(var)
+                run(var, msg)
             else:
                 usage()
         elif op == "-h":

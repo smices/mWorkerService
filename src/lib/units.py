@@ -4,6 +4,7 @@ import sys
 import os
 from termcolor import cprint
 
+
 def this_file_dir():
     """
     get file current path
@@ -13,6 +14,20 @@ def this_file_dir():
         return path
     elif os.path.isfile(path):
         return os.path.dirname(path)
+
+
+def get_app_path(root_path=None):
+    if root_path is None:
+        root_path = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
+    path = dict()
+    path['root'] = root_path
+    path['conf'] = root_path + os.sep + "conf"
+    path['task'] = root_path + os.sep + "task"
+    path['lib'] = root_path + os.sep + "lib"
+    path['3rd'] = root_path + os.sep + "3rd"
+    path['tmp'] = root_path + os.sep + "tmp"
+
+    return path
 
 
 def qdebug(msg, debug=False):
